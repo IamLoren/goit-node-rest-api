@@ -1,5 +1,7 @@
 import contactsServices from "../services/contactsServices.js";
 
+import {createContactSchema} from "../schemas/contactsSchemas.js";
+
 export const getAllContacts = async (req, res, next) => {
   try {
     const result = await contactsServices.listContacts();
@@ -32,11 +34,16 @@ export const deleteContact = (req, res, next) => {
     }
 };
 
-export const createContact = (req, res, next) => {
+export const createContact = async (req, res, next) => {
     try {
-        
+      const {error} = createContactSchema.validate(req.body);
+      if (error) {
+        throw HttpError(400, error.message);
+      }
+        const result = await contactsServices.addContact(req.body);
+        res.status(201).json(result);
     } catch (error) {
-        
+        next(error);
     }
 };
 
