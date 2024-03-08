@@ -5,7 +5,7 @@ import {createContactSchema, updateContactSchema} from "../schemas/contactsSchem
 export const getAllContacts = async (req, res, next) => {
   try {
     const result = await contactsServices.listContacts();
-    res.json(result);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -16,11 +16,9 @@ export const getOneContact = async (req, res, next) => {
     const { id } = req.params;
     const result = await contactsServices.getContactById(id);
     if (!result) {
-      const error = new Error(`Contact with id=${id} not found`);
-      error.status = 404;
-      throw error;
+      throw HttpError(404, `Not found`)
     }
-    res.json(result);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -31,9 +29,9 @@ export const deleteContact = async (req, res, next) => {
       const {id} = req.params;
       const result = await contactsServices.removeContact(id);
       if (!result) {
-        throw HttpError(404, `Food with id=${id} is not found`)
+        throw HttpError(404, `Not found`)
       }
-      res.json({message: "Delete success"});
+      res.status(200).json({message: "Delete success"});
     } catch (error) {
         next(error)
     }
@@ -61,9 +59,9 @@ export const updateContact = async (req, res, next) => {
     const {id} = req.params;
       const result = await contactsServices.updateContactById(id, req.body);
       if (!result) {
-        throw HttpError(404, `Food with id=${id} is not found`)
+        throw HttpError(404, `Not found`)
       }
-      res.json(result);
+      res.status(200).json(result);
   } catch (error) {
       next(error);
   }
