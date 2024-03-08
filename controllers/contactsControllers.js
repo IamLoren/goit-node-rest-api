@@ -1,6 +1,6 @@
 import contactsServices from "../services/contactsServices.js";
 
-import {createContactSchema} from "../schemas/contactsSchemas.js";
+import {createContactSchema, updateContactSchema} from "../schemas/contactsSchemas.js";
 
 export const getAllContacts = async (req, res, next) => {
   try {
@@ -26,11 +26,16 @@ export const getOneContact = async (req, res, next) => {
   }
 };
 
-export const deleteContact = (req, res, next) => {
+export const deleteContact = async (req, res, next) => {
     try {
-        
+      const {id} = req.params;
+      const result = await contactsServices.removeContact(id);
+      if (!result) {
+        throw HttpError(404, `Food with id=${id} is not found`)
+      }
+      res.json({message: "Delete success"});
     } catch (error) {
-        
+        next(error)
     }
 };
 
@@ -47,4 +52,19 @@ export const createContact = async (req, res, next) => {
     }
 };
 
-export const updateContact = (req, res, next) => {};
+export const updateContact = async (req, res, next) => {
+  try {
+    const {error} = updateContactSchema.validate(req.body);
+    if (error) {
+      throw HttpError(400, error.message);
+    }
+    const {id} = req.params;
+      const result = await contactsServices.updateContactById(id, req.body);
+      if (!result) {
+        throw HttpError(404, `Food with id=${id} is not found`)
+      }
+      res.json(result);
+  } catch (error) {
+      next(error);
+  }
+};
