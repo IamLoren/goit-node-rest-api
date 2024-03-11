@@ -1,75 +1,13 @@
-import fs from "fs/promises";
-import { fileURLToPath } from "url";
-import path from "path";
+import { Contact } from "../models/Contacts.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+export const listContacts = () => Contact.find();
 
-const contactsPath = path.join("db", "contacts.json");
+export const getContactById = async (contactId) => Contact.findById(contactId);
 
-export async function listContacts() {
-  try {
-    const data = await fs.readFile(contactsPath, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    throw new Error(`Помилка при читанні файлу: ${error.message}`);
-  }
-}
+export const removeContact = async (contactId) =>
+  Contact.findByIdAndDelete(contactId);
 
-export async function getContactById(contactId) {
-  const contacts = await listContacts();
-  return contacts.find((contact) => contact.id === contactId) || null;
-}
+export const addContact = async (data) => Contact.create(data);
 
-export async function updateContactById(id, data) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex(item => item.id === id);
-  if(index === -1) {
-    return null;
-  }
-  contacts[index] = { ...contacts[index], ...data};
- await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
- return contacts[index];
-}
-
-export async function addContact({ name, email, phone }) {
-  try {
-    const contacts = await listContacts();
-    const newContact = {
-      id: Date.now().toString(),
-      name,
-      email,
-      phone,
-    };
-    contacts.push(newContact);
-    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-    return newContact;
-  } catch (error) {
-    throw new Error(`Помилка при записі файлу: ${error.message}`);
-  }
-}
-
-export async function removeContact(contactId) {
-  try {
-    const contacts = await listContacts();
-    const removedIndex = contacts.findIndex(
-      (contact) => contact.id === contactId
-    );
-    if (removedIndex === -1) {
-      return null;
-    }
-    const removedContact = contacts.splice(removedIndex, 1)[0];
-    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-    return removedContact;
-  } catch (error) {
-    throw new Error(`Помилка при записі файлу: ${error.message}`);
-  }
-}
-
-export default {
-  listContacts,
-  getContactById,
-  addContact,
-  removeContact,
-  updateContactById
-};
+export const updateContact = async (id, body) =>
+  Contact.findByIdAndUpdate(id, body);
