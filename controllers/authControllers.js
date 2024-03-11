@@ -4,6 +4,7 @@ import HttpError from "../helpers/HttpError.js";
 import ctrWrapper from "../decorators/ctrWrapper.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import gravatar from 'gravatar';
 
 const { JWT_SECRET } = process.env;
 
@@ -14,12 +15,15 @@ const register = async (req, res) => {
     throw HttpError(409, "Email in use");
   }
 
-  const newUser = await authServices.signUp(req.body);
+  const avatarURL = gravatar.url(email, {s: '200', r: 'pg', d: 'mm'});
+
+  const newUser = await authServices.signUp({ ...req.body, avatarURL });
 
   res.status(201).json({
     username: newUser.username,
     email: newUser.email,
     subscription: newUser.subscription,
+    avatarURL: newUser.avatarURL, 
   });
 };
 
