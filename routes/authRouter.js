@@ -31,7 +31,7 @@ authRouter.patch(
 
 authRouter.patch(
   "/users/avatars",
-  upload.single("photo"),
+  upload.single("avatar"),
   authenticate,
   authControllers.updateAvatar
 );
