@@ -64,10 +64,26 @@ const updateSubscription = async (req, res) => {
   res.json({ subscription });
 };
 
+const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  const { path: oldPath, filename } = req.file;
+  const newPath = path.join(contactsDir, filename);
+
+  await fs.rename(oldPath, newPath);
+
+  await jimp.read(newPath).resize(250, 250).writeAsync(newPath);
+
+  const avatarURL = path.join(contactsDir, filename);
+  const newUser = await userServices.updateAvatar(_id, avatarURL);
+
+  res.json({ photo: newUser.avatarURL });
+};
+
 export default {
   register: ctrWrapper(register),
   login: ctrWrapper(login),
   updateSubscription: ctrWrapper(updateSubscription),
   logout: ctrWrapper(logout),
   getCurrent: ctrWrapper(getCurrent),
+  updateAvatar: ctrWrapper(updateAvatar),
 };

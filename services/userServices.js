@@ -11,3 +11,7 @@ export const findUserById = (id) => {
 export const setSubscription = (id, subscription) => {
   return User.findByIdAndUpdate(id, { subscription });
 };
+
+export const updateUserAvatar = async (userId, avatarURL) => {
+    return User.findByIdAndUpdate(userId, { avatarURL }, { new: true });
+  };
