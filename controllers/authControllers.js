@@ -5,6 +5,10 @@ import ctrWrapper from "../decorators/ctrWrapper.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import gravatar from 'gravatar';
+import fs from 'fs';
+import path from 'path'; 
+
+const contactsDir = path.resolve("public", "contacts");
 
 const { JWT_SECRET } = process.env;
 
