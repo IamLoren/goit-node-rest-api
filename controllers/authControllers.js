@@ -1,4 +1,5 @@
 import * as authServices from "../services/authServices.js";
+import * as userServices from "../services/userServices.js";
 import { findUser } from "../services/userServices.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrWrapper from "../decorators/ctrWrapper.js";
@@ -7,8 +8,9 @@ import jwt from "jsonwebtoken";
 import gravatar from 'gravatar';
 import fs from 'fs';
 import path from 'path'; 
+import jimp from 'jimp';
 
-const contactsDir = path.resolve("public", "contacts");
+const avatarDir = path.resolve("public", "avatars");
 
 const { JWT_SECRET } = process.env;
 
@@ -71,14 +73,15 @@ const updateSubscription = async (req, res) => {
 const updateAvatar = async (req, res) => {
   const { _id } = req.user;
   const { path: oldPath, filename } = req.file;
-  const newPath = path.join(contactsDir, filename);
+  const newPath = path.join(avatarDir, filename);
 
   await fs.rename(oldPath, newPath);
 
-  await jimp.read(newPath).resize(250, 250).writeAsync(newPath);
+  const image = await jimp.read(newPath);
+  await image.resize(250, 250).write(newPath); 
 
-  const avatarURL = path.join(contactsDir, filename);
-  const newUser = await userServices.updateAvatar(_id, avatarURL);
+  const avatarURL = path.join(avatarDir, filename);
+  const newUser = await userServices.updateUserAvatar(_id, avatarURL);
 
   res.json({ photo: newUser.avatarURL });
 };
