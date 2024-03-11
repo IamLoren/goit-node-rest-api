@@ -1,17 +1,18 @@
 import jwt from "jsonwebtoken";
-
-import { findUserById } from "../services/userServices.js";
-
 import HttpError from "../helpers/HttpError.js";
+import { findUserById } from "../services/userServices.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const { JWT_SECRET } = process.env;
 
-const authenticate = async (req, res, next) => {
+export const authenticate = async (req, res, next) => {
   const { authorization } = req.headers;
-  const [bearer, token] = authorization.split("");
-  if (bearer !== "Bearer") {
+  if (!authorization || !authorization.startsWith("Bearer ")) {
     return next(HttpError(401, "Not authorized"));
   }
+  const token = authorization.split(" ")[1];
   try {
     const { id } = jwt.verify(token, JWT_SECRET);
     const user = await findUserById(id);
@@ -21,8 +22,6 @@ const authenticate = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    next(HttpError(401, error.message));
+    next(HttpError(401, "Not authorized"));
   }
 };
-
-export default authenticate;
